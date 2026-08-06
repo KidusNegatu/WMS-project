@@ -7,8 +7,8 @@ const int rainPin = A5;
 const int buzzerPin = 9;
 const int upBtn = 52;
 const int downBtn = 53;
-String datas[27];
-const int dataLength = 27;
+String datas[22];
+const int dataLength = 22;
 int topItem = 0;
 float temp;   
 int humidity;
@@ -67,7 +67,7 @@ String weatherAlerts(float temper, float humi, int light, int rain){
     digitalWrite(buzzerPin, LOW);
     return "HeatWave&Drought";
   }
-  else if(temper < 0 && temper < -20) {
+  else if(temper < 0 && temper <= -20) {
     digitalWrite(buzzerPin, HIGH);
     delay(5000);
     digitalWrite(buzzerPin, LOW);
@@ -97,7 +97,7 @@ String weatherAlerts(float temper, float humi, int light, int rain){
     digitalWrite(buzzerPin, LOW);
     return "Flooding";
   }
-  else if(humi > 60 && humi > 100) {
+  else if(humi > 60 && humi <= 100) {
     digitalWrite(buzzerPin, HIGH);
     delay(5000);
     digitalWrite(buzzerPin, LOW);
@@ -221,28 +221,23 @@ void loop() {
       sunrise = doc["Forecast"]["sunrise"];
       sunset = doc["Forecast"]["sunset"];
 
-      datas[5]  = "PyTemp: " + String(pythonTemp);
-      datas[6]  = "PyHumid: " + String(pyhtonHumidity);
-      datas[7]  = "PyLDR: " + String(pythonLdrValue);
-      datas[8]  = "PyRain: " + String(pythonRainValue);
-      datas[9]  = "PyAlert: " + String(pythonAlert);
-      datas[10] = "Time: " + pythonTime;
-      datas[11] = "Updated: " + pythonLastUpdate;
-      datas[12] = dayOrNight;
-      datas[13] = "Cloud: " + String(cloudCover) + "%";
-      datas[14] = "Feels: " + String(feelsLikeTemp) + (char)223 + "C";
-      datas[15] = "Wind: " + String(windKph) + "kph";
-      datas[16] = "MaxWind: " + String(maxWindKph) + "kph";
-      datas[17] = "WindDir: " + String(windDirection);
-      datas[18] = "Date: " + String(forcastDate);
-      datas[19] = "MaxT: " + String(maxTemp) + (char)223 + "C";
-      datas[20] = "MinT: " + String(minTemp) + (char)223 + "C";
-      datas[21] = "AvgT: " + String(avgTemp) + (char)223 + "C";
-      datas[22] = condition;
-      datas[23] = "Rain%: " + String(chanceOfRain) + "%";
-      datas[24] = "AvgHumid: " + String(avgHumidity) + "%";
-      datas[25] = "Sunrise: " + sunrise;
-      datas[26] = "Sunset: " + sunset;
+      datas[5] = "Time: " + pythonTime;
+      datas[6] = "Updated: " + pythonLastUpdate;
+      datas[7] = dayOrNight;
+      datas[8] = "Cloud: " + String(cloudCover) + "%";
+      datas[9] = "FeelsT: " + String(feelsLikeTemp) + (char)223 + "C";
+      datas[10] = "Wind: " + String(windKph) + "kph";
+      datas[11] = "MaxWind: " + String(maxWindKph) + "kph";
+      datas[12] = "WindDir: " + String(windDirection);
+      datas[13] = "Date: " + String(forcastDate);
+      datas[14] = "MaxT: " + String(maxTemp) + (char)223 + "C";
+      datas[15] = "MinT: " + String(minTemp) + (char)223 + "C";
+      datas[16] = "AvgT: " + String(avgTemp) + (char)223 + "C";
+      datas[17] = condition;
+      datas[18] = "Rain%: " + String(chanceOfRain) + "%";
+      datas[19] = "AvgHumid: " + String(avgHumidity) + "%";
+      datas[20] = "Sunrise: " + sunrise;
+      datas[21] = "Sunset: " + sunset;
     }
   };
   lcdFun();
