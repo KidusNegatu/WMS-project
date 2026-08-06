@@ -1,18 +1,19 @@
 #include <DHT.h>
 #include <LiquidCrystal.h>
-
+#include <ArduinoJson.h>
 const int ldrPin = A0;
 const int dhtPin = 10;
 const int rainPin = A5;
 const int buzzerPin = 9;
 const int upBtn = 52;
 const int downBtn = 53;
-String datas[5];
-const int dataLength = 5;
+String datas[27];
+const int dataLength = 27;
 int topItem = 0;
 float temp;   
-float humidity;
+int humidity;
 String alert;
+String dataPython;
 
 DHT dht(dhtPin, DHT11);
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
@@ -106,6 +107,29 @@ String weatherAlerts(float temper, float humi, int light, int rain){
     return "None";
   };
 };
+float pythonTemp;
+int pyhtonHumidity;
+float pythonLdrValue;
+float pythonRainValue;
+String pythonAlert;
+String pythonTime;
+String pythonLastUpdate;
+String dayOrNight;
+float cloudCover;
+float feelsLikeTemp;
+float windKph;
+float maxWindKph;
+float windDirection;
+String forcastDate;
+float maxTemp;
+float minTemp;
+float avgTemp;
+String condition;
+int chanceOfRain;
+int avgHumidity;
+String sunrise;
+String sunset;
+
 void loop() {
   temp = dht.readTemperature();
   humidity = dht.readHumidity();
@@ -165,12 +189,62 @@ void loop() {
            "\"Temp\":" + String(temp) + ","
            "\"Humidity\":" + String(humidity) + ","
            "\"LDRValue\":" + String(ldrPercentage) + ","
-           "\"LDRValueADC\":" + String(ldrValue) + ","
            "\"RainValue\":" + String(rainPercentage) + "," 
-           "\"RainValueADC\":" + String(rainValue) + ","
            "\"Alert\":\"" + alert + "\"" +
        "}";
   Serial.println(dataAsJSON);
+  if(Serial.available()){
+    dataPython = Serial.readStringUntil('\n');
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, dataPython);
+    if(!error) {
+      pythonTemp = doc["serialData"]["Temp"];
+      pyhtonHumidity = doc["serialData"]["Humidity"];
+      pythonLdrValue = doc["serialData"]["LDRValue"];
+      pythonRainValue = doc["serialData"]["RainValue"];
+      pythonAlert = doc["serialData"]["Alert"];
+      pythonTime = doc["apiData"]["time"];
+      pythonLastUpdate = doc["apiData"]["lastUpdate"];
+      dayOrNight = doc["apiData"]["dayOrNight"];
+      cloudCover = doc["apiData"]["cloudCover"];
+      feelsLikeTemp = doc["apiData"]["feelsLikeTemp"];
+      windKph = doc["apiData"]["windKph"];
+      windDirection = doc["apiData"]["windDegree"];
+      forcastDate = doc["Forecast"]["date"];
+      maxTemp = doc["Forecast"]["maxTemp"];
+      minTemp = doc["Forecast"]["minTemp"];
+      avgTemp = doc["Forecast"]["avgTemp"];
+      condition = doc["Forecast"]["condition"];
+      chanceOfRain = doc["Forecast"]["chanceOfRain"];
+      avgHumidity = doc["Forecast"]["avgHumidity"];
+      maxWindKph = doc["Forecast"]["maxwindKph"];
+      sunrise = doc["Forecast"]["sunrise"];
+      sunset = doc["Forecast"]["sunset"];
+
+      datas[5]  = "PyTemp: " + String(pythonTemp);
+      datas[6]  = "PyHumid: " + String(pyhtonHumidity);
+      datas[7]  = "PyLDR: " + String(pythonLdrValue);
+      datas[8]  = "PyRain: " + String(pythonRainValue);
+      datas[9]  = "PyAlert: " + String(pythonAlert);
+      datas[10] = "Time: " + pythonTime;
+      datas[11] = "Updated: " + pythonLastUpdate;
+      datas[12] = dayOrNight;
+      datas[13] = "Cloud: " + String(cloudCover) + "%";
+      datas[14] = "Feels: " + String(feelsLikeTemp) + (char)223 + "C";
+      datas[15] = "Wind: " + String(windKph) + "kph";
+      datas[16] = "MaxWind: " + String(maxWindKph) + "kph";
+      datas[17] = "WindDir: " + String(windDirection);
+      datas[18] = "Date: " + String(forcastDate);
+      datas[19] = "MaxT: " + String(maxTemp) + (char)223 + "C";
+      datas[20] = "MinT: " + String(minTemp) + (char)223 + "C";
+      datas[21] = "AvgT: " + String(avgTemp) + (char)223 + "C";
+      datas[22] = condition;
+      datas[23] = "Rain%: " + String(chanceOfRain) + "%";
+      datas[24] = "AvgHumid: " + String(avgHumidity) + "%";
+      datas[25] = "Sunrise: " + sunrise;
+      datas[26] = "Sunset: " + sunset;
+    }
+  };
   lcdFun();
   delay(300);
 };
