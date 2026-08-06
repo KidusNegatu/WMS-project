@@ -6,6 +6,7 @@ import json
 from appwrite.client import Client
 from appwrite.id import ID
 from appwrite.services.tables_db import TablesDB
+
 class WMSDataProcessing():
     def __init__(self, port, baud, latitude, longitude):
         self.port = port
@@ -26,6 +27,8 @@ class WMSDataProcessing():
         self.saveDataToServer()
         self.saveForecastDataToServer()
         self.saveDataToJSON()
+        self.sendDataToArduino()
+
     def serialCom(self):
         try:
             self.com = Serial(self.port, self.baud, timeout=3)
@@ -50,6 +53,7 @@ class WMSDataProcessing():
         finally:
             if self.com is not None:
                 self.com.close()
+
     def weatherAPIData(self):
         print("Loading weatherAPI data...")
         apiData = {}
@@ -78,11 +82,13 @@ class WMSDataProcessing():
             windDirection = data["current"]["wind_dir"]
             apiData.update({"windDirection": windDirection})
             self.wholeData.update({"apiData": apiData})
+            # print(apiData)
             # print(self.wholeData)
             print("Done loading weatherAPI data...")
         except Exception as err:
             print("SOMETHING WENT WRONG WHILE READING WEATHER API DATA!!", err)
             self.failed = True
+
     def saveDataToJSON(self):
         try:
             with open("WMS.json", "r") as wmsFile:
@@ -98,6 +104,7 @@ class WMSDataProcessing():
             print("INVALID JSON FORMAT!!", jsonError)
             self.failed = True
             return
+        
     def saveDataToServer(self):
         print("Saving data to AppWrite...")
         try:
@@ -116,17 +123,17 @@ class WMSDataProcessing():
             print("SOMETHING WENT WRONG WHILE UPLOADING DATA TO APPWRITE!!", err)
             self.failed = True
         print("Done saving data to AppWrite.")
+
     def saveForecastDataToServer(self):
         forecastRespond = get(self.forecastUrl)
         forecastData = forecastRespond.json()
         forecastDay = forecastData["forecast"]["forecastday"]
-        self.wmsForecast = []  
         for data in forecastDay:
             forecast = {
                 "date": data["date"],
                 "maxTemp": data["day"]["maxtemp_c"],
                 "minTemp": data["day"]["mintemp_c"],
-                "aveTemp": data["day"]["avgtemp_c"],
+                "avgTemp": data["day"]["avgtemp_c"],
                 "condition": data["day"]["condition"]["text"],
                 "chanceOfRain": data["day"]["daily_chance_of_rain"],
                 "avgHumidity": data["day"]["avghumidity"],
@@ -134,19 +141,31 @@ class WMSDataProcessing():
                 "sunrise": data["astro"]["sunrise"],
                 "sunset": data["astro"]["sunset"]
             }
-            self.wmsForecast.append(forecast)
             self.wmsTable.create_row(
                 database_id="6a73a050001026525006",
-                table_id="wms_forcast_table",
-                row_id=ID.unique(),
+                table_id="wmsforcastapidata",
+                row_id=ID.unique(), 
                 data=forecast
             )
             # print(self.wmsForecast)
-            self.wholeData.update({"Forecast": self.wmsForecast})
+            self.wholeData.update({"Forecast": forecast})
+
+    def sendDataToArduino(self):
+        try:
+            print("Sending data to arduino...")
+            arduinoData = json.dumps(self.wholeData) + "\n"
+            self.com.write(arduinoData.encode("utf-8"))
+            print("Done saving data to arduino...")
+        except serial.SerialException as serialError:
+            print("WMS IS NOT CONNECTED!!", serialError)
+        except Exception as err:
+            print("SOMETHING WENT WRONG WHILE SENDING DATA TO ARDUINO!!", err)
+        print(self.wholeData)
+
 try:
     if __name__ == "__main__":
         while True:
-            wms = WMSDataProcessing("COM6", 9600, 9.02497,38.74689)
+            wms = WMSDataProcessing("COM6", 9600, 9.02497 , 38.74689)
             if wms.failed:
                 break
             else:
@@ -156,5 +175,3 @@ try:
         print("THIS FILE MUST RUN DIRECTLY!!")
 except KeyboardInterrupt:
     print("Exiting program...")
-except Exception as err:
-  print("SOMETHING WENT WRONG!!", err)
