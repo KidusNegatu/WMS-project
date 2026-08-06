@@ -1,22 +1,42 @@
 #include <DHT.h>
 #include <LiquidCrystal.h>
 #include <ArduinoJson.h>
+
 const int ldrPin = A0;
 const int dhtPin = 10;
 const int rainPin = A5;
 const int buzzerPin = 9;
 const int upBtn = 52;
 const int downBtn = 53;
-String datas[22];
-const int dataLength = 22;
+
+const int dataLength = 27;
+String datas[dataLength];
+int itemCount = 0;
 int topItem = 0;
-float temp;   
+
+float temp;
 int humidity;
 String alert;
 String dataPython;
 
 DHT dht(dhtPin, DHT11);
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+
+String pythonLastUpdate = "N/A";
+String dayOrNight       = "N/A";
+float cloudCover        = 0;
+float feelsLikeTemp     = 0;
+float windKph           = 0;
+String windDirection    = "N/A";
+float maxTemp           = 0;
+float minTemp           = 0;
+float avgTemp           = 0;
+String condition        = "N/A";
+int chanceOfRain        = 0;
+int avgHumidity         = 0;
+float maxWindKph        = 0;
+String sunrise          = "N/A";
+String sunset           = "N/A";
 
 void setup() {
   pinMode(ldrPin, INPUT);
@@ -31,104 +51,84 @@ void setup() {
   digitalWrite(buzzerPin, HIGH);
   delay(1000);
   digitalWrite(buzzerPin, LOW);
-};
+}
+
 void lcdFun() {
-  if (digitalRead(downBtn) == LOW && topItem < dataLength - 2) {
+  if (digitalRead(downBtn) == LOW && topItem < itemCount - 2) {
     topItem++;
     delay(50);
-  };
+  }
   if (digitalRead(upBtn) == LOW && topItem > 0) {
     topItem--;
     delay(50);
-  };
+  }
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(datas[topItem]);
   lcd.setCursor(0, 1);
   lcd.print(datas[topItem + 1]);
-  if(topItem == 3) {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Alert: ");
-    lcd.setCursor(0, 1);
-    lcd.print(alert);
-  };
-};
-String labels[2] = {
-  "Light: ",
-  "Rain: "
-};
-String values[2];
+}
 
-String weatherAlerts(float temper, float humi, int light, int rain){
-  if(temper < 50 && temper >= 35){
+String weatherAlerts(float temper, float humi, int light, int rain) {
+  if (temper < 40 && temper >= 35) {
     digitalWrite(buzzerPin, HIGH);
-    delay(5000);
+    delay(3000);
     digitalWrite(buzzerPin, LOW);
     return "HeatWave&Drought";
-  }
-  else if(temper < 0 && temper <= -20) {
+  } else if (temper < 0) {
     digitalWrite(buzzerPin, HIGH);
-    delay(5000);
+    delay(3000);
     digitalWrite(buzzerPin, LOW);
     return "ColdWave";
-  }
-  else if(temper > 30 && temper < 45) {
+  } else if (temper < 0 && temper >= -3) {
     digitalWrite(buzzerPin, HIGH);
-    delay(5000);
-    digitalWrite(buzzerPin, LOW);
-    return "WildFires";
-  }
-  else if(temper < 0 && temper >= -3) {
-    digitalWrite(buzzerPin, HIGH);
-    delay(5000);
+    delay(3000);
     digitalWrite(buzzerPin, LOW);
     return "IceStorm";
-  }
-  else if(humi > 96 && humi < 100) {
+  } else if (humi > 96 && humi < 100) {
     digitalWrite(buzzerPin, HIGH);
-    delay(5000);
+    delay(3000);
     digitalWrite(buzzerPin, LOW);
-    return "Fog";
-  }
-  else if(humi > 80 && humi < 100) {
+    return "DenseFog";
+  } else if (humi > 90 && humi < 100) {
     digitalWrite(buzzerPin, HIGH);
-    delay(5000);
+    delay(3000);
     digitalWrite(buzzerPin, LOW);
     return "Flooding";
-  }
-  else if(humi > 60 && humi <= 100) {
+  } else if (humi > 60 && humi > 800) {
     digitalWrite(buzzerPin, HIGH);
-    delay(5000);
+    delay(3000);
     digitalWrite(buzzerPin, LOW);
-    return "Thunderstorms";
-  }
-  else{
+    return "HeavyRain";
+  } else {
     return "None";
-  };
-};
-float pythonTemp;
-int pyhtonHumidity;
-float pythonLdrValue;
-float pythonRainValue;
-String pythonAlert;
-String pythonTime;
-String pythonLastUpdate;
-String dayOrNight;
-float cloudCover;
-float feelsLikeTemp;
-float windKph;
-float maxWindKph;
-float windDirection;
-String forcastDate;
-float maxTemp;
-float minTemp;
-float avgTemp;
-String condition;
-int chanceOfRain;
-int avgHumidity;
-String sunrise;
-String sunset;
+  }
+}
+
+void buildDisplayData(int ldrPercentage, int rainPercentage) {
+  int i = 0;
+  datas[i++] = "Temp: " + String(temp, 1) + "C";
+  datas[i++] = "Humidity: " + String(humidity) + "%";
+  datas[i++] = "Light: " + String(ldrPercentage) + "%";
+  datas[i++] = "Rain: " + String(rainPercentage) + "%";
+  datas[i++] = "Alert: " + alert;
+  datas[i++] = "Updated: " + pythonLastUpdate;
+  datas[i++] = dayOrNight;
+  datas[i++] = "Cloud: " + String(cloudCover, 0) + "%";
+  datas[i++] = "Feels: " + String(feelsLikeTemp, 1) + "C";
+  datas[i++] = "Wind: " + String(windKph, 1) + "kph";
+  datas[i++] = "WindDir: " + windDirection;
+  datas[i++] = "MaxTemp: " + String(maxTemp, 1) + "C";
+  datas[i++] = "MinTemp: " + String(minTemp, 1) + "C";
+  datas[i++] = "AvgTemp: " + String(avgTemp, 1) + "C";
+  datas[i++] = "Cond: " + condition;
+  datas[i++] = "RainChance: " + String(chanceOfRain) + "%";
+  datas[i++] = "AvgHum: " + String(avgHumidity) + "%";
+  datas[i++] = "MaxWind: " + String(maxWindKph, 1) + "kph";
+  datas[i++] = "Sunrise: " + sunrise;
+  datas[i++] = "Sunset: " + sunset;
+  itemCount = i;
+}
 
 void loop() {
   temp = dht.readTemperature();
@@ -138,6 +138,7 @@ void loop() {
   float rainValue = analogRead(rainPin);
   int rainPercentage = map(rainValue, 0, 1023, 0, 100);
   alert = weatherAlerts(temp, humidity, ldrPercentage, rainPercentage);
+
   if (isnan(temp) || isnan(humidity)) {
     Serial.println("THE DHT11 IS NOT WORKING!");
     lcd.clear();
@@ -147,10 +148,10 @@ void loop() {
         lcd.blink();
         delay(500);
         lcd.noBlink();
-      };
-    };
+      }
+    }
     while (1);
-  };
+  }
 
   if (isnan(ldrValue)) {
     Serial.println("THE PHOTO SENSOR IS NOT WORKING!");
@@ -161,10 +162,10 @@ void loop() {
         lcd.blink();
         delay(500);
         lcd.noBlink();
-      };
-    };
+      }
+    }
     while (1);
-  };
+  }
 
   if (isnan(rainValue)) {
     Serial.println("THE FC37 IS NOT WORKING!!");
@@ -175,71 +176,47 @@ void loop() {
         lcd.blink();
         delay(500);
         lcd.noBlink();
-      };
-    };
-  };
-  values[0] = String(ldrPercentage) + "%";
-  values[1] = String(rainPercentage) + "%";
-  datas[0] = labels[0] + values[0];
-  datas[1] = labels[1] + values[1];
-  datas[2] = "Temp: " + String(temp) + (char)223 + "C";
-  datas[3] = "Humid: " + String(humidity) + "%";
-  datas[4] = alert;
+      }
+    }
+  }
+
   String dataAsJSON = "{"
            "\"Temp\":" + String(temp) + ","
            "\"Humidity\":" + String(humidity) + ","
            "\"LDRValue\":" + String(ldrPercentage) + ","
-           "\"RainValue\":" + String(rainPercentage) + "," 
+           "\"RainValue\":" + String(rainPercentage) + ","
            "\"Alert\":\"" + alert + "\"" +
        "}";
   Serial.println(dataAsJSON);
-  if(Serial.available()){
+
+  if (Serial.available()) {
     dataPython = Serial.readStringUntil('\n');
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, dataPython);
-    if(!error) {
-      pythonTemp = doc["serialData"]["Temp"];
-      pyhtonHumidity = doc["serialData"]["Humidity"];
-      pythonLdrValue = doc["serialData"]["LDRValue"];
-      pythonRainValue = doc["serialData"]["RainValue"];
-      pythonAlert = doc["serialData"]["Alert"];
-      pythonTime = doc["apiData"]["time"];
-      pythonLastUpdate = doc["apiData"]["lastUpdate"];
-      dayOrNight = doc["apiData"]["dayOrNight"];
-      cloudCover = doc["apiData"]["cloudCover"];
-      feelsLikeTemp = doc["apiData"]["feelsLikeTemp"];
-      windKph = doc["apiData"]["windKph"];
-      windDirection = doc["apiData"]["windDegree"];
-      forcastDate = doc["Forecast"]["date"];
-      maxTemp = doc["Forecast"]["maxTemp"];
-      minTemp = doc["Forecast"]["minTemp"];
-      avgTemp = doc["Forecast"]["avgTemp"];
-      condition = doc["Forecast"]["condition"];
-      chanceOfRain = doc["Forecast"]["chanceOfRain"];
-      avgHumidity = doc["Forecast"]["avgHumidity"];
-      maxWindKph = doc["Forecast"]["maxwindKph"];
-      sunrise = doc["Forecast"]["sunrise"];
-      sunset = doc["Forecast"]["sunset"];
 
-      datas[5] = "Time: " + pythonTime;
-      datas[6] = "Updated: " + pythonLastUpdate;
-      datas[7] = dayOrNight;
-      datas[8] = "Cloud: " + String(cloudCover) + "%";
-      datas[9] = "FeelsT: " + String(feelsLikeTemp) + (char)223 + "C";
-      datas[10] = "Wind: " + String(windKph) + "kph";
-      datas[11] = "MaxWind: " + String(maxWindKph) + "kph";
-      datas[12] = "WindDir: " + String(windDirection);
-      datas[13] = "Date: " + String(forcastDate);
-      datas[14] = "MaxT: " + String(maxTemp) + (char)223 + "C";
-      datas[15] = "MinT: " + String(minTemp) + (char)223 + "C";
-      datas[16] = "AvgT: " + String(avgTemp) + (char)223 + "C";
-      datas[17] = condition;
-      datas[18] = "Rain%: " + String(chanceOfRain) + "%";
-      datas[19] = "AvgHumid: " + String(avgHumidity) + "%";
-      datas[20] = "Sunrise: " + sunrise;
-      datas[21] = "Sunset: " + sunset;
+    if (!error) {
+      pythonLastUpdate = doc["lastUpdated"]   | pythonLastUpdate;
+      dayOrNight       = doc["dayOrNight"]    | dayOrNight;
+      cloudCover       = doc["cloudCover"]    | cloudCover;
+      feelsLikeTemp    = doc["feelsLikeTemp"] | feelsLikeTemp;
+      windKph          = doc["windKPH"]       | windKph;
+      windDirection    = doc["windDirection"] | windDirection;
+      maxTemp          = doc["maxTemp"]       | maxTemp;
+      minTemp          = doc["minTemp"]       | minTemp;
+      avgTemp          = doc["avgTemp"]       | avgTemp;
+      condition        = doc["condition"]     | condition;
+      chanceOfRain     = doc["chanceOfRain"]  | chanceOfRain;
+      avgHumidity      = doc["avgHumidity"]   | avgHumidity;
+      maxWindKph       = doc["maxWindKph"]    | maxWindKph;
+      sunrise          = doc["sunrise"]       | sunrise;
+      sunset           = doc["sunset"]        | sunset;
+    } else {
+      Serial.print("JSON parse failed: ");
+      Serial.println(error.c_str());
     }
-  };
+  }
+
+  buildDisplayData(ldrPercentage, rainPercentage);
   lcdFun();
   delay(300);
-};
+}
