@@ -6,7 +6,7 @@ import json
 from appwrite.client import Client
 from appwrite.id import ID
 from appwrite.services.tables_db import TablesDB
-
+import sys
 class WMSDataProcessing():
     def __init__(self, port, baud, latitude, longitude):
         self.port = port
@@ -23,7 +23,11 @@ class WMSDataProcessing():
         self.wmsTable = TablesDB(self.user)
         self.wmsForecast = {}
         self.serialCom()
+        if self.failed:
+            return
         self.weatherAPIData()
+        if self.failed:
+            return
         self.saveDataToServer()
         self.saveForecastDataToServer()
         self.saveDataToJSON()
@@ -31,18 +35,25 @@ class WMSDataProcessing():
 
     def serialCom(self):
         try:
-            self.com = Serial(self.port, self.baud, timeout=3)
-            print("Serial Communicating...")
-            serialData = self.com.readline().decode().strip()
-            print("Reading serial...")
+            with Serial(self.port, self.baud, timeout=3) as self.com:
+                print("Serial Communicating...")
+                serialData = self.com.readline().decode().strip()
+                print("Reading serial...")
             if serialData:
-                self.wholeData.update({"serialData",serialData})
+                try:
+                    parsedSerial = json.loads(serialData)
+                    if isinstance(parsedSerial, dict):
+                        self.wholeData.update(parsedSerial)
+                    else:
+                        self.wholeData["serialData"] = parsedSerial
+                except json.JSONDecodeError:
+                    self.wholeData["serialData"] = serialData
             else:
                 self.wholeData = {}
         except serial.SerialException as serialError:
             print("ERROR OCCURED WHILE OPENING SERIAL PORT!!", serialError)
             self.failed = True
-            return 
+            return
         except KeyboardInterrupt:
             print("Exiting program...")
             self.failed = True
@@ -50,9 +61,6 @@ class WMSDataProcessing():
             print("SOMETHING WENT WRONG!!", err)
             self.failed = True
             return 1
-        finally:
-            if self.com is not None:
-                self.com.close()
 
     def weatherAPIData(self):
         print("Loading weatherAPI data...")
@@ -60,10 +68,8 @@ class WMSDataProcessing():
         try:
             res = get(self.currentUrl)
             data = res.json()
-            time = data["location"]["localtime"]
-            apiData.update({"time": time})
             lastUpdate = data["current"]["last_updated"]
-            apiData.update({"lastUpdate": lastUpdate})
+            apiData.update({"lastUpdated": lastUpdate})
             dayOrNight = data["current"]["is_day"]
             diurnalCycle = None
             if dayOrNight == 0:
@@ -76,14 +82,10 @@ class WMSDataProcessing():
             feelsLikeTemp = data["current"]["feelslike_c"]
             apiData.update({"feelsLikeTemp": feelsLikeTemp})
             windkph = data["current"]["wind_kph"]
-            apiData.update({"windKph": windkph})
-            windDegree = data["current"]["wind_degree"]
-            apiData.update({"windDegree": windDegree})
+            apiData.update({"windKPH": windkph})
             windDirection = data["current"]["wind_dir"]
             apiData.update({"windDirection": windDirection})
-            self.wholeData.update({"apiData": apiData})
-            # print(apiData)
-            # print(self.wholeData)
+            self.wholeData.update(apiData)
             print("Done loading weatherAPI data...")
         except Exception as err:
             print("SOMETHING WENT WRONG WHILE READING WEATHER API DATA!!", err)
@@ -104,18 +106,14 @@ class WMSDataProcessing():
             print("INVALID JSON FORMAT!!", jsonError)
             self.failed = True
             return
-        
+
     def saveDataToServer(self):
         print("Saving data to AppWrite...")
         try:
-            rowData = {}
-            if "serialData" in self.wholeData:
-                rowData["serialData"] = self.wholeData["serialData"]
-            if "apiData" in self.wholeData:
-                rowData.update(self.wholeData["apiData"])
+            rowData = dict(self.wholeData)
             self.wmsTable.create_row(
                 database_id="6a73a050001026525006",
-                table_id="wms_sensors_tabel",
+                table_id="wms_database",
                 row_id=ID.unique(),
                 data=rowData
             )
@@ -130,25 +128,24 @@ class WMSDataProcessing():
         forecastDay = forecastData["forecast"]["forecastday"]
         for data in forecastDay:
             forecast = {
-                "date": data["date"],
                 "maxTemp": data["day"]["maxtemp_c"],
                 "minTemp": data["day"]["mintemp_c"],
                 "avgTemp": data["day"]["avgtemp_c"],
                 "condition": data["day"]["condition"]["text"],
+                "conditionIcon": data["day"]["condition"]["icon"],
                 "chanceOfRain": data["day"]["daily_chance_of_rain"],
                 "avgHumidity": data["day"]["avghumidity"],
-                "maxwindKph": data["day"]["maxwind_kph"],
+                "maxWindKph": data["day"]["maxwind_kph"],
                 "sunrise": data["astro"]["sunrise"],
                 "sunset": data["astro"]["sunset"]
             }
             self.wmsTable.create_row(
                 database_id="6a73a050001026525006",
-                table_id="wmsforcastapidata",
-                row_id=ID.unique(), 
+                table_id="wms_database",
+                row_id=ID.unique(),
                 data=forecast
             )
-            # print(self.wmsForecast)
-            self.wholeData.update({"Forecast": forecast})
+            self.wholeData.update(forecast)
 
     def sendDataToArduino(self):
         try:
@@ -164,8 +161,14 @@ class WMSDataProcessing():
 
 try:
     if __name__ == "__main__":
+        try:
+            lat = float(input("Latitude: "))
+            long = float(input("Longitude: "))
+        except Exception:
+            print("INVALID INPUT!!")
+            sys.exit(1)
         while True:
-            wms = WMSDataProcessing("COM6", 9600, 9.02497 , 38.74689)
+            wms = WMSDataProcessing("COM6", 9600, lat, long)
             if wms.failed:
                 break
             else:
