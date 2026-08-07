@@ -35,11 +35,11 @@ class WMSDataProcessing():
 
     def serialCom(self):
         try:
-            self.com = Serial(self.port, self.baud, timeout=3)
-
-            print("Serial Communicating...")
-            serialData = self.com.readline().decode().strip()
-            print("Reading serial...")
+            with serial.Serial(self.port, self.baud, timeout=3) as com:
+                print("Serial Communicating...")
+                serialData = com.readline().decode().strip()
+                print("Reading serial...")
+                print(serialData)
 
             if serialData:
                 try:
@@ -149,10 +149,11 @@ class WMSDataProcessing():
 
     def sendDataToArduino(self):
         try:
-            print("Sending data to arduino...")
-            arduinoData = json.dumps(self.wholeData) + "\n"
-            self.com.write(arduinoData.encode("utf-8"))
-            print("Done saving data to arduino...")
+             with serial.Serial(self.port, self.baud, timeout=3) as com:
+                print("Sending data to arduino...")
+                arduinoData = json.dumps(self.wholeData) + "\n"
+                self.com.write(arduinoData.encode("utf-8"))
+                print("Done saving data to arduino...")
         except serial.SerialException as serialError:
             print("WMS IS NOT CONNECTED!!", serialError)
         except Exception as err:
@@ -167,13 +168,18 @@ try:
         except Exception:
             print("INVALID INPUT!!")
             sys.exit(1)
+        try:
+            port = input("Port: ")
+        except Exception:
+            print("INVALID INPUT!!")
+            sys.exit(1)
         while True:
-            wms = WMSDataProcessing("COM6", 9600, lat, long)
+            wms = WMSDataProcessing(port, 9600, lat, long)
             if wms.failed:
                 break
             else:
                 pass
-            time.sleep(3)
+            time.sleep(2)
     else:
         print("THIS FILE MUST RUN DIRECTLY!!")
 except KeyboardInterrupt:
