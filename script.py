@@ -34,26 +34,26 @@ class WMSDataProcessing():
         self.sendDataToArduino()
 
     def serialCom(self):
-        try:
-            with Serial(self.port, self.baud, timeout=3) as self.com:
-                print("Serial Communicating...")
-                serialData = self.com.readline().decode().strip()
-                print("Reading serial...")
-            if serialData:
-                try:
-                    parsedSerial = json.loads(serialData)
-                    if isinstance(parsedSerial, dict):
-                        self.wholeData.update(parsedSerial)
-                    else:
-                        self.wholeData["serialData"] = parsedSerial
-                except json.JSONDecodeError:
-                    self.wholeData["serialData"] = serialData
-            else:
-                self.wholeData = {}
-        except serial.SerialException as serialError:
-            print("ERROR OCCURED WHILE OPENING SERIAL PORT!!", serialError)
-            self.failed = True
-            return
+    try:
+        self.com = Serial(self.port, self.baud, timeout=3)
+
+        print("Serial Communicating...")
+        serialData = self.com.readline().decode().strip()
+        print("Reading serial...")
+
+        if serialData:
+            try:
+                parsedSerial = json.loads(serialData)
+                if isinstance(parsedSerial, dict):
+                    self.wholeData.update(parsedSerial)
+                else:
+                    self.wholeData["serialData"] = parsedSerial
+            except json.JSONDecodeError:
+                self.wholeData["serialData"] = serialData
+
+    except serial.SerialException as e:
+        print(e)
+        self.failed = True
         except KeyboardInterrupt:
             print("Exiting program...")
             self.failed = True
