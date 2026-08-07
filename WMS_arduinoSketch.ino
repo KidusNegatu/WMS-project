@@ -74,32 +74,51 @@ String weatherAlerts(float temper, float humi, int light, int rain) {
     digitalWrite(buzzerPin, HIGH);
     delay(3000);
     digitalWrite(buzzerPin, LOW);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Drought");
     return "HeatWave&Drought";
   } else if (temper < 0) {
     digitalWrite(buzzerPin, HIGH);
     delay(3000);
     digitalWrite(buzzerPin, LOW);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("ColdWave");
     return "ColdWave";
   } else if (temper < 0 && temper >= -3) {
     digitalWrite(buzzerPin, HIGH);
     delay(3000);
     digitalWrite(buzzerPin, LOW);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("ICDStorm");
     return "IceStorm";
   } else if (humi > 96 && humi < 100) {
     digitalWrite(buzzerPin, HIGH);
     delay(3000);
     digitalWrite(buzzerPin, LOW);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("DenseFog");
     return "DenseFog";
   } else if (humi > 90 && humi < 100) {
     digitalWrite(buzzerPin, HIGH);
     delay(3000);
     digitalWrite(buzzerPin, LOW);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Flooding");
     return "Flooding";
   } else if (humi > 60 && humi > 800) {
     digitalWrite(buzzerPin, HIGH);
     delay(3000);
     digitalWrite(buzzerPin, LOW);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("HeavyRain");
     return "HeavyRain";
+    
   } else {
     return "None";
   }
