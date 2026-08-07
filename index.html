@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMS - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+</head>
+<body>
+    <button id="menus"><ion-icon name="menu-outline"></ion-icon></button>
+    <div id="sideBar">
+        <h1>WMS</h1>
+        <p id="nameP">Weather Monitoring System</p>
+        <button class="menuBtn" id="dBtn"><ion-icon class="ionicons" name="grid-outline"></ion-icon> Dashboard</button>
+        <button class="menuBtn" id="sBtn"><ion-icon name="bar-chart-outline" style="position: relative; top: 1px; left: -5px;"></ion-icon> Statistics</button>
+        <button class="menuBtn" id="hBtn"><ion-icon class="ionicons" name="time-outline"></ion-icon> History</button>
+        <button class="menuBtn" id="aBtn"><ion-icon class="ionicons" name="information-circle-outline"></ion-icon> About</button>
+        <!-- <div id="statusBox">
+            <div id="onlineOfflineCircle"></div>
+            <h4>System status</h4>
+            <p id="onORoff">___</p>
+            <h3>Last update</h3>
+            <time id="timing">___</time>
+        </div> -->
+        <p id="pageName">WMS</p>
+        <p id="pageDis">Read • Store • Display</p>
+    </div>
+    
+    <section class="sections" id="dashboardSection">
+        <h2 class="sectionName">Dashboard</h2>
+        <p class="sectionDis">Latest reading via WMS: </p>
+        <div id="sensorDiv">
+            <div class="sensorBox">
+                <p class="sensorName">Temperature</p>
+                <h2 class="sensorData" id="tempData">___</h2>
+                <img src="icons8-thermometer-80.png" alt="thermometer" class="sensorIcon">
+                <!-- <a href="#" class="sensorGraph" id="tempGraphBtn">See map</a> -->
+            </div>
+            <div class="sensorBox">
+                <p class="sensorName">Humidity</p>
+                <h2 class="sensorData" id="humidityData">___</h2>
+                <img src="icons8-drop-96.png" alt="thermometer" class="sensorIcon">
+                <!-- <a href="#" class="sensorGraph" id="humGraphBtn">See map</a> -->
+            </div>
+            <div class="sensorBox">
+                <p class="sensorName">Rain</p>
+                <h2 class="sensorData" id="rainData">___</h2>
+                <img src="icons8-rain-64 (1).png" alt="thermometer" class="sensorIcon">
+                <!-- <a href="#" class="sensorGraph" id="rainGraphBtn">See map</a> -->
+            </div>
+            <div class="sensorBox">
+                <p class="sensorName">Light</p>
+                <h2 class="sensorData" id="lightData">___</h2>
+                <img src="icons8-sun-100.png" alt="thermometer" class="sensorIcon" >
+                <!-- <a href="#" class="sensorGraph" id="lightGraphBtn">See map</a> -->
+            </div>
+            <div class="sensorBox">
+                <p class="sensorName">Air Pressure</p>
+                <h2 class="sensorData" id="airPresData">___</h2>
+                <img src="icons8-air-pressure-40.png" alt="thermometer" class="sensorIcon" >
+                <!-- <a href="#" class="sensorGraph" id="lightGraphBtn">See map</a> -->
+            </div>
+            <div class="sensorBox">
+                <p class="sensorName">Altitude</p>
+                <h2 class="sensorData" id="altitudeData">___</h2>
+                <img src="icons8-sun-elevation-80.png" alt="thermometer" class="sensorIcon" >
+                <!-- <a href="#" class="sensorGraph" id="lightGraphBtn">See map</a> -->
+            </div>
+            <div class="sensorBox">
+                <p class="sensorName">Wind</p>
+                <h2 class="sensorData" id="windData">___</h2>
+                <img src="icons8-wind-100.png" alt="thermometer" class="sensorIcon" >
+                <!-- <a href="#" class="sensorGraph" id="lightGraphBtn">See map</a> -->
+            </div>
+        </div>
+        <div id="condition">
+            <div id="iconBox"></div>
+            <p id="conditionText">_____</p>
+        </div>
+        <div id="map"></div>
+    </section> 
+    <section class="sections" id="statisticsSection">
+        <h2 class="sectionName" id="statisticsName">statistics</h2>
+        <p class="sectionDis" id="statisticsDis"">Data into decisions.</p>
+        <div id="statisticsBox">
+            <div class="box g-temp">
+                <span class="label">Temperature</span>
+                <span class="value" id="statTemp">___</span><span class="unit">°C</span>
+            </div>
+            <div class="box g-temp">
+                <span class="label">Feels like</span>
+                <span class="value" id="statFeelsTemp">___</span><span class="unit">°C</span>
+            </div>
+            <div class="box g-temp">
+                <span class="label">Max temp</span>
+                <span class="value" id="statMaxTemp">___</span><span class="unit">°C</span>
+            </div>
+            <div class="box g-temp">
+                <span class="label">Min temp</span>
+                <span class="value" id="statMinTemp">___</span><span class="unit">°C</span>
+            </div>
+            <div class="box g-temp">
+                <span class="label">Avg temp</span>
+                <span class="value" id="statAvgTemp">___</span><span class="unit">°C</span>
+            </div>
+
+            <div class="box g-air">
+                <span class="label">Humidity</span>
+                <span class="value" id="statHumid">___</span><span class="unit">%</span>
+            </div>
+            <div class="box g-air">
+                <span class="label">Avg humidity</span>
+                <span class="value" id="statAvgHumid">___</span><span class="unit">%</span>
+            </div>
+            <div class="box g-air">
+                <span class="label">Air pressure</span>
+                <span class="value" id="statAirPress">___</span><span class="unit">hPa</span>
+            </div>
+            <div class="box g-air">
+                <span class="label">Altitude</span>
+                <span class="value" id="statAlti">___</span><span class="unit">m</span>
+            </div>
+            <div class="box g-air">
+                <span class="label">Light level</span>
+                <span class="value" id="statLDR">___</span>
+            </div>
+
+            <div class="box g-sky">
+                <span class="label">Cloud cover</span>
+                <span class="value" id="statCloud">___</span><span class="unit">%</span>
+            </div>
+            <div class="box g-sky">
+                <span class="label">Chance of rain</span>
+                <span class="value" id="statChanceRain">___</span><span class="unit">%</span>
+            </div>
+            <div class="box g-sky">
+                <span class="label">Rainfall</span>
+                <span class="value" id="statRain">___</span><span class="unit">mm</span>
+            </div>
+            <div class="box g-sky">
+                <span class="label">Sunrise</span>
+                <span class="value" id="statSunrise">___</span>
+            </div>
+            <div class="box g-sky">
+                <span class="label">Sunset</span>
+                <span class="value" id="statSunset">___</span>
+            </div>
+
+            <div class="box g-wind span-2">
+                <span class="label">Wind</span>
+                <span class="value" id="statWind">___</span><span class="unit">kph</span>
+                <div class="sub" id="statWindSub">___</div>
+            </div>
+        </div>
+        <div class="boxLegend">
+            <span><i style="background:#3b82f6"></i>Temperature</span>
+            <span><i style="background:#6a96df"></i>Atmosphere</span>
+            <span><i style="background:#00bfff"></i>Sky</span>
+            <span><i style="background:#00ffcc"></i>Wind</span>
+        </div>
+    </section>
+    <section class="sections" id="historySection">
+        <h2 class="sectionName">History</h2>
+        <p class="sectionDis">Whole history of WMS</p>
+        <!-- Copied from UIverse --> 
+        <a href="\BackEnd\WMS.json" download=""><button class="Btn">
+          <svg
+            class="svgIcon"
+            viewBox="0 0 384 512"
+            height="1em"
+            xmlns="http://www.w3.org/2000/svg">
+            <path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"></path>
+          </svg>
+          <span class="icon2"></span>
+          <span class="tooltip">JSON File</span>
+        </button></a>
+
+        <table class="weatherTable">
+            <thead>
+                <tr>
+                    <th>Years</th>
+                    <th>Months</th>
+                    <th>Days</th>
+                    <th>Hours</th>
+                    <th>Minutes</th>
+                    <th>Seconds</th>
+                    <th>Temperature</th>
+                    <th>Humidity</th>
+                    <th>RainPercentage</th>
+                    <th>LightIntensity</th>
+                    <th>DayorNight</th>
+                    <th>CloudCover</th>
+                    <th>ChanceOfRain</th>
+                    <th>FeelsLikeTemp</th>
+                    <th>MaxTemp</th>
+                    <th>MinTemp</th>
+                    <th>AvgTemp</th>
+                    <th>windKPH</th>
+                    <th>WindDirection</th>
+                    <th>Condition</th>
+                    <th>AvgHumidity</th>
+                    <th>AirPressure</th>
+                    <th>Altitude</th>
+                    <th>Sunset</th>
+                    <th>Sunrise</th>
+                </tr>
+            </thead>
+            <tbody id="tabelBody">
+            </tbody>
+        </table>
+    </section>
+    <section class="sections" id="aboutSection">
+        <h2 class="sectionName">About</h2>
+        <p class="sectionDis">Real time weather review</p>
+    </section>
+    <script type="module" src="script.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</body>
+</html>
