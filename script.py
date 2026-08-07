@@ -85,6 +85,8 @@ class WMSDataProcessing():
             apiData.update({"windKPH": windkph})
             windDirection = data["current"]["wind_dir"]
             apiData.update({"windDirection": windDirection})
+            icon = data["current"]["condition"]["icon"]
+            apiData.update({"Icon", icon})
             self.wholeData.update(apiData)
             print("Done loading weatherAPI data...")
         except Exception as err:
