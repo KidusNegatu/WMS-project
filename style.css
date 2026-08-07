@@ -86,6 +86,7 @@ body {
     color: #7488a3;
 }
 #pageName {
+    font-family: "Roboto", sans-serif;
     position: relative;
     top: 48%;
     left: 50%;
@@ -93,10 +94,11 @@ body {
     color: #7488a3;
 }
 #pageDis {
+    font-family: "Inter", sans-serif;
     position: relative;
     top: 49%;
     left: 50%;
-    transform: translateX(-30%);
+    transform: translateX(-35%);
     color: #7488a3;
 }
 .box.g-temp { border-left-color: #3b82f6; }
