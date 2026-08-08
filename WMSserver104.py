@@ -83,7 +83,7 @@ class WMSDataProcessing():
             apiData.update({"windKPH": windkph})
             windDirection = data["current"]["wind_dir"]
             apiData.update({"windDirection": windDirection})
-            icon = data["current"]["condition"]["Icon"]
+            icon = data["current"]["condition"]["conditionIcon"]
             apiData.update({"Icon": icon})
             self.wholeData.update(apiData)
             print(apiData)
