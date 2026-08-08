@@ -146,7 +146,7 @@ try:
             print("INVALID INPUT!!")
             sys.exit(1)
         while True:
-            wms = WMSDataProcessing(port, 9600, lat, long)
+            wms = WMSDataProcessing(port, 230400, lat, long)
             if wms.failed:
                 break
             else:
