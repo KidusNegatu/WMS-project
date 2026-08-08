@@ -61,6 +61,7 @@ class WMSDataProcessing():
 
     def weatherAPIData(self):
         print("Loading weatherAPI data...")
+        print(self.wholeData)
         apiData = {}
         try:
             res = get(self.currentUrl)
