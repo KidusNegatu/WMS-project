@@ -44,8 +44,6 @@ class WMSDataProcessing():
                     parsedSerial = json.loads(serialData)
                     if isinstance(parsedSerial, dict):
                         self.wholeData.update(parsedSerial)
-                    else:
-                        self.wholeData["serialData"] = parsedSerial
                 except json.JSONDecodeError:
                     self.wholeData["serialData"] = serialData
 
