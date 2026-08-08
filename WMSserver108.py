@@ -1,3 +1,4 @@
+```python
 import serial
 from serial import Serial
 from requests import get
@@ -8,11 +9,11 @@ from appwrite.id import ID
 from appwrite.services.tables_db import TablesDB
 import sys
 class WMSDataProcessing():
-    def __init__(self, port, baud, latitude, longitude):
+    def __init__(self, port, baud, latitude, longitude, com):
         self.port = port
         self.baud = baud
         self.wholeData = {}
-        self.com = None
+        self.com = com
         self.currentUrl = f"https://api.weatherapi.com/v1/current.json?key=e24ce09a5d8846b2b3c190302260508&q={latitude},{longitude}"
         self.forecastUrl = f"https://api.weatherapi.com/v1/forecast.json?key=e24ce09a5d8846b2b3c190302260508&q={latitude},{longitude}"
         self.failed = False
@@ -22,33 +23,17 @@ class WMSDataProcessing():
         self.user.set_project("42914291")
         self.wmsTable = TablesDB(self.user)
         self.wmsForecast = {}
-        self.serialCom()
-        if self.failed:
-            return
-        self.weatherAPIData()
-        if self.failed:
-            return
-        self.saveForecastDataToServer()
-        self.saveDataToServer()
-
-    def serialCom(self):
         try:
-            with serial.Serial(self.port, self.baud, timeout=3) as com:
-                print("Serial Communicating...")
-                serialData = com.readline().decode().strip()
-                print("Reading serial...")
-                print(serialData)
-                time.sleep(2)
-
-            if serialData:
+            time.sleep(2)
+            self.serialData = self.com.readline().decode().strip()
+            if self.serialData:
                 try:
-                    parsedSerial = json.loads(serialData)
-                    if isinstance(parsedSerial, dict):
-                        self.wholeData.update(parsedSerial)
+                    self.parsedSerial = json.loads(self.serialData)
+                    if isinstance(self.parsedSerial, dict):
+                        self.wholeData.update(self.parsedSerial)
                 except json.JSONDecodeError:
                     print("SERIAL DATA IS NOT VALID JSON!!")
                     self.failed = True
-
         except serial.SerialException as e:
             print(e)
             self.failed = True
@@ -59,7 +44,13 @@ class WMSDataProcessing():
             print("SOMETHING WENT WRONG!!", err)
             self.failed = True
             return 1
-
+        if self.failed:
+            return
+        self.weatherAPIData()
+        if self.failed:
+            return
+        self.saveForecastDataToServer()
+        self.saveDataToServer()
     def weatherAPIData(self):
         print("Loading weatherAPI data...")
         apiData = {}
@@ -91,7 +82,6 @@ class WMSDataProcessing():
         except Exception as err:
             print("SOMETHING WENT WRONG WHILE READING WEATHER API DATA!!", err)
             self.failed = True
-
     def saveDataToServer(self):
         print("Saving data to AppWrite...")
         try:
@@ -106,7 +96,6 @@ class WMSDataProcessing():
             print("SOMETHING WENT WRONG WHILE UPLOADING DATA TO APPWRITE!!", err)
             self.failed = True
         print("Done saving data to AppWrite.")
-
     def saveForecastDataToServer(self):
         forecastRespond = get(self.forecastUrl)
         forecastData = forecastRespond.json()
@@ -132,7 +121,6 @@ class WMSDataProcessing():
             )
             self.wholeData.update(forecast)
             print(self.wholeData)
-
 try:
     if __name__ == "__main__":
         try:
@@ -146,14 +134,24 @@ try:
         except Exception:
             print("INVALID INPUT!!")
             sys.exit(1)
-        while True:
-            wms = WMSDataProcessing(port, 9600, lat, long)
-            if wms.failed:
-                break
-            else:
-                pass
-            time.sleep(2)
+        try:
+            com = serial.Serial(port, 9600, timeout=3)
+        except serial.SerialException as e:
+            print(e)
+            sys.exit(1)
+        try:
+            while True:
+                wms = WMSDataProcessing(port, 9600, lat, long, com)
+                if wms.failed:
+                    break
+                else:
+                    pass
+                time.sleep(2)
+        finally:
+            if com.is_open:
+                com.close()
     else:
         print("THIS FILE MUST RUN DIRECTLY!!")
 except KeyboardInterrupt:
     print("Exiting program...")
+```
