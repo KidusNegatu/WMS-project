@@ -85,6 +85,7 @@ class WMSDataProcessing():
             icon = data["current"]["condition"]["icon"]
             apiData.update({"Icon": icon})
             self.wholeData.update(apiData)
+            print(apiData)
             print("Done loading weatherAPI data...")
         except Exception as err:
             print("SOMETHING WENT WRONG WHILE READING WEATHER API DATA!!", err)
@@ -129,6 +130,7 @@ class WMSDataProcessing():
                 data=forecast
             )
             self.wholeData.update(forecast)
+            print(aelf.wholeData)
 
 try:
     if __name__ == "__main__":
