@@ -33,7 +33,7 @@ class WMSDataProcessing():
 
     def serialCom(self):
         try:
-            with serial.Serial(self.port, self.baud, timeout=3) as com:
+            with serial.Serial(self.port, self.baud, timeout=1) as com:
                 print("Serial Communicating...")
                 serialData = com.readline().decode().strip()
                 print("Reading serial...")
