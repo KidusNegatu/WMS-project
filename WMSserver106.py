@@ -28,8 +28,8 @@ class WMSDataProcessing():
         self.weatherAPIData()
         if self.failed:
             return
-        self.saveDataToServer()
         self.saveForecastDataToServer()
+        self.saveDataToServer()
 
     def serialCom(self):
         try:
