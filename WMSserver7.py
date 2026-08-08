@@ -176,7 +176,6 @@
 #                 break
 #             else:
 #                 pass
-```python
 import serial
 from serial import Serial
 from requests import get
@@ -446,10 +445,3 @@ try:
 
 except KeyboardInterrupt:
     print("Exiting program...")
-```
-
-#             time.sleep(2)
-#     else:
-#         print("THIS FILE MUST RUN DIRECTLY!!")
-# except KeyboardInterrupt:
-#     print("Exiting program...")
