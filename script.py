@@ -30,8 +30,6 @@ class WMSDataProcessing():
             return
         self.saveDataToServer()
         self.saveForecastDataToServer()
-        self.saveDataToJSON()
-        self.sendDataToArduino()
 
     def serialCom(self):
         try:
@@ -86,28 +84,12 @@ class WMSDataProcessing():
             windDirection = data["current"]["wind_dir"]
             apiData.update({"windDirection": windDirection})
             icon = data["current"]["condition"]["icon"]
-            apiData.update({"Icon", icon})
+            apiData.update({"Icon": icon})
             self.wholeData.update(apiData)
             print("Done loading weatherAPI data...")
         except Exception as err:
             print("SOMETHING WENT WRONG WHILE READING WEATHER API DATA!!", err)
             self.failed = True
-
-    def saveDataToJSON(self):
-        try:
-            with open("WMS.json", "r") as wmsFile:
-                self.dataJSON = json.load(wmsFile)
-            print("Loading data from WMS.json...")
-            self.dataJSON.append(self.wholeData)
-            print("Done loading data to WMS.json.")
-            print("Saving data to WMS.json...")
-            with open("WMS.json", "w") as wmsFile:
-                json.dump(self.dataJSON, wmsFile, indent=4)
-            print("Done saving data to WMS.json.")
-        except json.JSONDecodeError as jsonError:
-            print("INVALID JSON FORMAT!!", jsonError)
-            self.failed = True
-            return
 
     def saveDataToServer(self):
         print("Saving data to AppWrite...")
@@ -148,19 +130,6 @@ class WMSDataProcessing():
                 data=forecast
             )
             self.wholeData.update(forecast)
-
-    def sendDataToArduino(self):
-        try:
-             with serial.Serial(self.port, self.baud, timeout=3) as com:
-                print("Sending data to arduino...")
-                arduinoData = json.dumps(self.wholeData) + "\n"
-                self.com.write(arduinoData.encode("utf-8"))
-                print("Done saving data to arduino...")
-        except serial.SerialException as serialError:
-            print("WMS IS NOT CONNECTED!!", serialError)
-        except Exception as err:
-            print("SOMETHING WENT WRONG WHILE SENDING DATA TO ARDUINO!!", err)
-        print(self.wholeData)
 
 try:
     if __name__ == "__main__":
