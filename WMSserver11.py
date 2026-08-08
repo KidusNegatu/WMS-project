@@ -9,7 +9,7 @@ from appwrite.services.tablesdb import TablesDB
 import sys
 
 class WMSDataProcessing():
-    def **init**(self, port, baud, latitude, longitude):
+    def __init__(self, port, baud, latitude, longitude):
         self.port = port
         self.baud = baud
         self.wholeData = {}
@@ -160,7 +160,7 @@ class WMSDataProcessing():
 
 
 try:
-    if **name** == "**main**":
+    if __name__ == "__main__":
         try:
             lat = float(input("Latitude: "))
             long = float(input("Longitude: "))
