@@ -5,7 +5,7 @@ import time
 import json
 from appwrite.client import Client
 from appwrite.id import ID
-from appwrite.services.tables\_db import TablesDB
+from appwrite.services.tablesdb import TablesDB
 import sys
 
 class WMSDataProcessing():
