@@ -5,21 +5,22 @@ import time
 import json
 from appwrite.client import Client
 from appwrite.id import ID
-from appwrite.services.tables_db import TablesDB
+from appwrite.services.tables\_db import TablesDB
 import sys
+
 class WMSDataProcessing():
-    def __init__(self, port, baud, latitude, longitude):
+    def **init**(self, port, baud, latitude, longitude):
         self.port = port
         self.baud = baud
         self.wholeData = {}
         self.com = None
-        self.currentUrl = f"https://api.weatherapi.com/v1/current.json?key=e24ce09a5d8846b2b3c190302260508&q={latitude},{longitude}"
-        self.forecastUrl = f"https://api.weatherapi.com/v1/forecast.json?key=e24ce09a5d8846b2b3c190302260508&q={latitude},{longitude}"
+        self.currentUrl = f"[https://api.weatherapi.com/v1/current.json?key=e24ce09a5d8846b2b3c190302260508&q={latitude},{longitude](https://api.weatherapi.com/v1/current.json?key=e24ce09a5d8846b2b3c190302260508\&q={latitude},{longitude)}"
+        self.forecastUrl = f"[https://api.weatherapi.com/v1/forecast.json?key=e24ce09a5d8846b2b3c190302260508&q={latitude},{longitude](https://api.weatherapi.com/v1/forecast.json?key=e24ce09a5d8846b2b3c190302260508\&q={latitude},{longitude)}"
         self.failed = False
         self.user = Client()
-        self.user.set_endpoint("https://nyc.cloud.appwrite.io/v1")
-        self.user.set_key("standard_8d89de02649192f6fe73af233f026cdf01d2ff32c0988756d068937bda334fa477c6c887460eebff4bb6a85753a8761ff8865d43444da4021ba7f96ea5a7496d835d9a715631838c37cb2e32f8db05a0711eec55ca0cc59d42de7cd002568556883635518bd17e7232e782b1df5e673f82d140f9d9171d9cff3836e2cc469a99")
-        self.user.set_project("42914291")
+        self.user.set\_endpoint("[https://nyc.cloud.appwrite.io/v1](https://nyc.cloud.appwrite.io/v1)")
+        self.user.set\_key("standard\_8d89de02649192f6fe73af233f026cdf01d2ff32c0988756d068937bda334fa477c6c887460eebff4bb6a85753a8761ff8865d43444da4021ba7f96ea5a7496d835d9a715631838c37cb2e32f8db05a0711eec55ca0cc59d42de7cd002568556883635518bd17e7232e782b1df5e673f82d140f9d9171d9cff3836e2cc469a99")
+        self.user.set\_project("42914291")
         self.wmsTable = TablesDB(self.user)
         self.wmsForecast = {}
         self.serialCom()
@@ -32,56 +33,56 @@ class WMSDataProcessing():
         self.saveForecastDataToServer()
 
     def serialCom(self):
-    try:
-        with serial.Serial(self.port, self.baud, timeout=1) as com:
-            print("Serial Communicating...")
+        try:
+            with serial.Serial(self.port, self.baud, timeout=1) as com:
+                print("Serial Communicating...")
 
-            buffer = ""
+                buffer = ""
 
-            while True:
-                chunk = com.read(com.in_waiting or 1).decode("utf-8", errors="ignore")
+                while True:
+                    chunk = com.read(com.in_waiting or 1).decode("utf-8", errors="ignore")
 
-                if chunk:
-                    buffer += chunk
-                    print("Reading serial...")
-                    print("BUFFER:", repr(buffer))
+                    if chunk:
+                        buffer += chunk
+                        print("Reading serial...")
+                        print("BUFFER:", repr(buffer))
 
-                    # Look for a complete JSON object
-                    start = buffer.find("{")
-                    end = buffer.find("}", start)
+                        # Look for a complete JSON object
+                        start = buffer.find("{")
+                        end = buffer.find("}", start)
 
-                    if start != -1 and end != -1:
-                        serialData = buffer[start:end + 1]
+                        if start != -1 and end != -1:
+                            serialData = buffer[start:end + 1]
 
-                        print("JSON DATA:", serialData)
+                            print("JSON DATA:", serialData)
 
-                        try:
-                            parsedSerial = json.loads(serialData)
+                            try:
+                                parsedSerial = json.loads(serialData)
 
-                            if isinstance(parsedSerial, dict):
-                                self.wholeData.update(parsedSerial)
-                                print("Valid serial JSON")
-                                return
+                                if isinstance(parsedSerial, dict):
+                                    self.wholeData.update(parsedSerial)
+                                    print("Valid serial JSON")
+                                    return
 
-                        except json.JSONDecodeError as e:
-                            print("JSON incomplete/invalid:", e)
+                            except json.JSONDecodeError as e:
+                                print("JSON incomplete/invalid:", e)
 
-                        # Remove processed data
-                        buffer = buffer[end + 1:]
+                            # Remove processed data
+                            buffer = buffer[end + 1:]
 
+                self.failed = True
+
+        except serial.SerialException as e:
+            print(e)
             self.failed = True
 
-    except serial.SerialException as e:
-        print(e)
-        self.failed = True
+        except KeyboardInterrupt:
+            print("Exiting program...")
+            self.failed = True
 
-    except KeyboardInterrupt:
-        print("Exiting program...")
-        self.failed = True
-
-    except Exception as err:
-        print("SOMETHING WENT WRONG!!", err)
-        self.failed = True
+        except Exception as err:
+            print("SOMETHING WENT WRONG!!", err)
+            self.failed = True
 
     def weatherAPIData(self):
         print("Loading weatherAPI data...")
@@ -157,8 +158,9 @@ class WMSDataProcessing():
             self.wholeData.update(forecast)
             print(self.wholeData)
 
+
 try:
-    if __name__ == "__main__":
+    if **name** == "**main**":
         try:
             lat = float(input("Latitude: "))
             long = float(input("Longitude: "))
