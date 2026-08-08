@@ -38,6 +38,7 @@ class WMSDataProcessing():
                 serialData = com.readline().decode().strip()
                 print("Reading serial...")
                 print(serialData)
+                time.sleep(2)
 
             if serialData:
                 try:
