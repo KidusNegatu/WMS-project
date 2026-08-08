@@ -32,32 +32,56 @@ class WMSDataProcessing():
         self.saveForecastDataToServer()
 
     def serialCom(self):
-        try:
-            with serial.Serial(self.port, self.baud, timeout=1) as com:
-                print("Serial Communicating...")
-                serialData = com.readline().decode().strip()
-                print("Reading serial...")
-                print(serialData)
+    try:
+        with serial.Serial(self.port, self.baud, timeout=1) as com:
+            print("Serial Communicating...")
 
-            if serialData:
-                try:
-                    parsedSerial = json.loads(serialData)
-                    if isinstance(parsedSerial, dict):
-                        self.wholeData.update(parsedSerial)
-                except json.JSONDecodeError:
-                    print("SERIAL DATA IS NOT VALID JSON!!")
-                    self.failed = True
+            buffer = ""
 
-        except serial.SerialException as e:
-            print(e)
+            while True:
+                chunk = com.read(com.in_waiting or 1).decode("utf-8", errors="ignore")
+
+                if chunk:
+                    buffer += chunk
+                    print("Reading serial...")
+                    print("BUFFER:", repr(buffer))
+
+                    # Look for a complete JSON object
+                    start = buffer.find("{")
+                    end = buffer.find("}", start)
+
+                    if start != -1 and end != -1:
+                        serialData = buffer[start:end + 1]
+
+                        print("JSON DATA:", serialData)
+
+                        try:
+                            parsedSerial = json.loads(serialData)
+
+                            if isinstance(parsedSerial, dict):
+                                self.wholeData.update(parsedSerial)
+                                print("Valid serial JSON")
+                                return
+
+                        except json.JSONDecodeError as e:
+                            print("JSON incomplete/invalid:", e)
+
+                        # Remove processed data
+                        buffer = buffer[end + 1:]
+
             self.failed = True
-        except KeyboardInterrupt:
-            print("Exiting program...")
-            self.failed = True
-        except Exception as err:
-            print("SOMETHING WENT WRONG!!", err)
-            self.failed = True
-            return 1
+
+    except serial.SerialException as e:
+        print(e)
+        self.failed = True
+
+    except KeyboardInterrupt:
+        print("Exiting program...")
+        self.failed = True
+
+    except Exception as err:
+        print("SOMETHING WENT WRONG!!", err)
+        self.failed = True
 
     def weatherAPIData(self):
         print("Loading weatherAPI data...")
