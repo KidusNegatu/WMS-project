@@ -129,7 +129,18 @@ async function appWriteDataProcess() {
   windData.innerText = String(windKPH) + "kph"?? "N/A";
   iconBox.innerHTML = Icon ?? '<ion-icon name="ban-outline"></ion-icon>';
   conditionText.innerText = condition ?? "N/A"
-  
+  const feelTemp2 = document.getElementById("feelTemp2");
+  feelTemp2.innerText = String(feelsLikeTemp) + "°C";
+  const avgHumid2 = document.getElementById("avgHumid2");
+  avgHumid2.innerText = String(avgHumidity) + "%";
+  const chanceRain = document.getElementById("chanceRain");
+  chanceRain.innerText = String(chanceOfRain) + "%";
+  const cloud2 = document.getElementById("cloud2");
+  cloud2.innerText = String(cloudCover) + "%";
+  const pascal = document.getElementById("pascal");
+  pascal.innerText =  AirPressure * 100.0;
+  const windDir2 = document.getElementById("windDir2");
+  windDir2.innerText =  windDirection ?? "Null";
   const API_KEY = "e798e2ccd8608c3cc1004054bd36de81";
   const latitude = 9.03;
   const longitude = 38.74;
