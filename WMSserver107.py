@@ -131,7 +131,7 @@ class WMSDataProcessing():
                 data=forecast
             )
             self.wholeData.update(forecast)
-            print(aelf.wholeData)
+            print(self.wholeData)
 
 try:
     if __name__ == "__main__":
