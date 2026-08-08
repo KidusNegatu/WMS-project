@@ -85,20 +85,25 @@ body {
     font-weight: 400;
     color: #7488a3;
 }
+#pageBox {
+    position: absolute;
+    bottom: 20px;
+    background-color: transparent;
+    width: 230px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
 #pageName {
     font-family: "Roboto", sans-serif;
     position: relative;
-    top: 48%;
-    left: 50%;
-    transform: translateX(-10%);
     color: #7488a3;
 }
 #pageDis {
     font-family: "Inter", sans-serif;
     position: relative;
-    top: 49%;
-    left: 50%;
-    transform: translateX(-35%);
     color: #7488a3;
 }
 .box.g-temp { border-left-color: #3b82f6; }
@@ -403,87 +408,6 @@ time {
 }
 .weatherTable tbody tr:last-child td {
     border-bottom: none;
-}
-/* Copied from UIverse */
-.Btn {
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 50%;
-  background-color: rgb(27, 27, 27);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: fixed;
-  right: 60px;
-  top: 10px;
-  transition-duration: 0.3s;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.11);
-  z-index: 900;
-}
-
-.svgIcon {
-  fill: #2196f3;
-}
-
-.icon2 {
-  width: 18px;
-  height: 5px;
-  border-bottom: 2px solid #2196f3;
-  border-left: 2px solid #2196f3;
-  border-right: 2px solid #2196f3;
-}
-
-.tooltip {
-  position: absolute;
-  left: -100px;
-  opacity: 0;
-  background-color: #152433;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition-duration: 0.2s;
-  pointer-events: none;
-  letter-spacing: 0.5px;
-}
-
-.tooltip::before {
-  position: absolute;
-  content: "";
-  width: 10px;
-  height: 10px;
-  background-color: rgb(12, 12, 12);
-  background-size: 1000%;
-  background-position: center;
-  transform: rotate(45deg);
-  left: -5%;
-  transition-duration: 0.3s;
-}
-
-.Btn:hover .tooltip {
-  opacity: 1;
-  transition-duration: 0.3s;
-}
-
-.Btn:hover {
-  background-color: #2196f3;
-  transition-duration: 0.3s;
-}
-
-.Btn:hover .icon2 {
-  border-bottom: 2px solid black;
-  border-left: 2px solid black;
-  border-right: 2px solid black;
-}
-
-.Btn:hover .svgIcon {
-  fill: black;
-  animation: slide-in-top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 #condition {
   position: fixed;
